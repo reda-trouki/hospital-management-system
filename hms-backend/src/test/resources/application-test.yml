@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:hmstest;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: validate      # fails the build if entities and Flyway schema drift apart
+app:
+  jwt:
+    secret: test-secret-test-secret-test-secret-test-secret
+  seed-demo-data: true

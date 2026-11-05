@@ -1,0 +1,11 @@
+app:
+  jwt:
+    secret: ${JWT_SECRET}      # required, no default
+  seed-demo-data: false
+  cors:
+    allowed-origins: ${CORS_ORIGINS}
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
