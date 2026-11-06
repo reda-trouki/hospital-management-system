@@ -17,7 +17,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {children}
       <div className="pointer-events-none fixed bottom-4 right-4 z-[100] flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-2 print:hidden">
         {list.map((t) => (
-          <div key={t.id} role="status" className={cn("pointer-events-auto flex items-start gap-2 rounded-lg border bg-card p-3 text-sm shadow-lg", t.error && "border-destructive/50")}>
+          <div key={t.id} role="status" className={cn("pointer-events-auto flex items-start gap-2.5 rounded-xl border border-l-4 border-l-primary bg-card p-3.5 text-sm shadow-xl", t.error && "border-l-destructive")}>
             {t.error ? <XCircle className="mt-0.5 size-4 shrink-0 text-destructive" /> : <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" />}
             <span>{t.msg}</span>
           </div>

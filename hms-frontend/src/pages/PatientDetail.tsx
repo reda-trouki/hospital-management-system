@@ -40,6 +40,10 @@ export default function PatientDetail() {
   const chart = [...vitals].reverse().map((v) => ({ day: v.date.slice(5, 10), "Heart rate": v.hr, "SpO₂": v.spo2 }))
   const last = vitals[0]
   const medicines = db.items.filter((i) => i.category === "Medicine")
+  const allergyClash = (itemId: string) => {
+    const med = medicines.find((m) => m.id === itemId)
+    return !!med && !!hasAllergy && p.allergies.toLowerCase().split(/[,;/]/).some((a) => a.trim() && med.name.toLowerCase().includes(a.trim().split(" ")[0]))
+  }
 
   return (
     <>
@@ -153,14 +157,15 @@ export default function PatientDetail() {
         <TabsContent value="rx">
           <div className="mb-3 flex justify-end">
             {can(role, "writeClinical") && (
-              <FormDialog title="New prescription" trigger={<Button><Pill /> Prescribe</Button>} initial={{ itemId: "", dosage: "", duration: "", qty: "", instructions: "" }} valid={(f) => !!f.itemId && !!f.dosage && Number(f.qty) > 0}
-                onSubmit={(f) => add("prescriptions", { patientId: p.id, doctorId: doctorId!, itemId: f.itemId, dosage: f.dosage, duration: f.duration, qty: Number(f.qty), instructions: f.instructions, date: today(), status: "Pending" }, `Prescribed ${medicines.find((m) => m.id === f.itemId)?.name} to ${p.name}`)}>
+              <FormDialog title="New prescription" trigger={<Button><Pill /> Prescribe</Button>} initial={{ itemId: "", dosage: "", duration: "", qty: "", instructions: "", override: "" }} valid={(f) => !!f.itemId && !!f.dosage && Number(f.qty) > 0 && (!allergyClash(f.itemId) || f.override === "yes")}
+                onSubmit={(f) => add("prescriptions", { patientId: p.id, doctorId: doctorId!, itemId: f.itemId, dosage: f.dosage, duration: f.duration, qty: Number(f.qty), instructions: f.instructions, date: today(), status: "Pending", allergyOverride: allergyClash(f.itemId) && f.override === "yes" } as never, `Prescribed ${medicines.find((m) => m.id === f.itemId)?.name} to ${p.name}`)}>
                 {(f, set) => {
                   const med = medicines.find((m) => m.id === f.itemId)
-                  const clash = med && hasAllergy && p.allergies.toLowerCase().split(/[,;/]/).some((a) => a.trim() && med.name.toLowerCase().includes(a.trim().split(" ")[0]))
+                  const clash = !!med && allergyClash(f.itemId)
                   return (<>
                     <SelectField label="Medicine" value={f.itemId} onChange={(v) => set("itemId", v)} options={medicines.map((m) => ({ value: m.id, label: `${m.name} (${m.stock} in stock)` }))} />
-                    {clash && <p role="alert" className="rounded-md border border-destructive/40 bg-destructive/10 p-2 text-sm text-destructive">⚠ Possible allergy conflict: patient is allergic to {p.allergies}.</p>}
+                    {clash && <p role="alert" className="rounded-md border border-destructive/40 bg-destructive/10 p-2 text-sm text-destructive">⚠ Possible allergy conflict: patient is allergic to {p.allergies}.
+                      <label className="mt-1 flex items-center gap-2 font-medium"><input type="checkbox" checked={f.override === "yes"} onChange={(e) => set("override", e.target.checked ? "yes" : "")} /> I reviewed this and want to prescribe anyway</label></p>}
                     <TextField label="Dosage" placeholder="e.g. 500mg three times daily" value={f.dosage} onChange={(v) => set("dosage", v)} />
                     <div className="grid grid-cols-2 gap-3"><TextField label="Duration" placeholder="7 days" value={f.duration} onChange={(v) => set("duration", v)} /><TextField label="Quantity" type="number" min={1} value={f.qty} onChange={(v) => set("qty", v)} /></div>
                     <TextField label="Instructions" value={f.instructions} onChange={(v) => set("instructions", v)} />

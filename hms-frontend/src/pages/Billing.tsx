@@ -113,7 +113,7 @@ export default function Billing() {
         <NewInvoice />
       </PageHeader>
       <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {totals.map(([label, v, c]) => <Card key={label}><CardContent className="p-6"><p className="text-sm text-muted-foreground">{label}</p><p className={`mt-2 text-2xl font-semibold ${c}`}>{money(v)}</p></CardContent></Card>)}
+        {totals.map(([label, v, c]) => <Card key={label}><CardContent className="p-5"><p className="text-sm font-medium text-muted-foreground">{label}</p><p className={`mt-3 font-display text-[1.75rem] font-semibold leading-none tracking-tight tabular-nums ${c}`}>{money(v)}</p></CardContent></Card>)}
       </div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <Tabs value={tab} onValueChange={(v) => { setTab(v); pg.setPage(0) }}><TabsList>{["all", "Pending", "Partial", "Overdue", "Paid"].map((t) => <TabsTrigger key={t} value={t}>{t === "all" ? "All" : t}</TabsTrigger>)}</TabsList></Tabs>

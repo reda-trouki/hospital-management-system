@@ -27,6 +27,10 @@ import Portal from "@/pages/Portal"
 
 try { if (localStorage.getItem("medicore-dark") === "1") document.documentElement.classList.add("dark") } catch { /* ignore */ }
 
+function Boot({ children }: { children: ReactNode }) {
+  const { loading } = useStore()
+  return loading ? <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">Loading…</div> : <>{children}</>
+}
 function RequireAuth({ children }: { children: ReactNode }) {
   const { user } = useStore()
   return user ? <>{children}</> : <Navigate to="/login" replace />
@@ -42,7 +46,7 @@ createRoot(document.getElementById("root")!).render(
     <ToastProvider>
       <StoreProvider>
         <HashRouter>
-          <Routes>
+          <Boot><Routes>
             <Route path="login" element={<Login />} />
             <Route element={<RequireAuth><Layout /></RequireAuth>}>
               <Route index element={<F f="dashboard"><Dashboard /></F>} />
@@ -64,7 +68,7 @@ createRoot(document.getElementById("root")!).render(
               <Route path="portal" element={<F f="portal"><Portal /></F>} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
-          </Routes>
+          </Routes></Boot>
         </HashRouter>
       </StoreProvider>
     </ToastProvider>

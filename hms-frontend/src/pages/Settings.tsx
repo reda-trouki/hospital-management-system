@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Plus, RotateCcw, Trash2 } from "lucide-react"
+import { Plus, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -13,12 +13,12 @@ import { ROLES } from "@/lib/auth"
 import type { Role } from "@/lib/types"
 
 export default function SettingsPage() {
-  const { settings, updateSettings, users, add, remove, user, patients, reset } = useStore()
+  const { settings, updateSettings, users, add, remove, user, patients } = useStore()
   const [name, setName] = useState(settings.hospitalName)
   const [tax, setTax] = useState(String(settings.taxRate))
   return (
     <>
-      <PageHeader title="Settings" description="Hospital profile, user accounts and data." />
+      <PageHeader title="Settings" description="Hospital profile and user accounts." />
       <div className="grid gap-4">
         <Card>
           <CardHeader><CardTitle>Hospital profile</CardTitle><CardDescription>Shown in the sidebar, login page and invoices.</CardDescription></CardHeader>
@@ -36,7 +36,7 @@ export default function SettingsPage() {
             <div className="grid gap-1.5"><CardTitle>User accounts</CardTitle><CardDescription>Role decides which modules a user can open.</CardDescription></div>
             <FormDialog title="Add user" trigger={<Button><Plus /> Add user</Button>} initial={{ name: "", email: "", password: "", role: "Nurse", linkedId: "none" }}
               valid={(f) => !!f.name.trim() && /\S+@\S+/.test(f.email) && f.password.length >= 6 && !users.some((u) => u.email.toLowerCase() === f.email.trim().toLowerCase()) && (f.role !== "Patient" || f.linkedId !== "none")}
-              onSubmit={(f) => add("users", { name: f.name.trim(), email: f.email.trim(), password: f.password, role: f.role as Role, ...(f.role === "Patient" ? { linkedId: f.linkedId } : {}) }, `Created ${f.role} account for ${f.name.trim()}`)}>
+              onSubmit={(f) => add("users", { name: f.name.trim(), email: f.email.trim(), password: f.password, role: f.role as Role, ...(f.role === "Patient" ? { linkedId: f.linkedId } : {}) } as never, `Created ${f.role} account for ${f.name.trim()}`)}>
               {(f, set) => (<>
                 <TextField label="Name" required value={f.name} onChange={(v) => set("name", v)} />
                 <TextField label="Email" type="email" required value={f.email} onChange={(v) => set("email", v)} />
@@ -63,10 +63,6 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader><CardTitle>Data</CardTitle><CardDescription>All data lives in this browser. Resetting restores the original demo records and accounts.</CardDescription></CardHeader>
-          <CardContent><Button variant="outline" onClick={() => confirm("Reset ALL data to the demo set?") && reset()}><RotateCcw /> Reset demo data</Button></CardContent>
-        </Card>
       </div>
     </>
   )

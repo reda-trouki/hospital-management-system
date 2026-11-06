@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react"
-import { ChevronLeft, ChevronRight, Search } from "lucide-react"
+import { Activity, CalendarClock, CalendarPlus, ChevronLeft, ChevronRight, FlaskConical, Inbox, NotebookPen, PackagePlus, PencilLine, Pill, Receipt, Scissors, Search, Siren, SquarePen, Stethoscope, UserPlus, Wallet, type LucideIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -45,6 +45,15 @@ export function SelectField({ label, value, onChange, options, placeholder, clas
   )
 }
 
+/** Picks a lucide icon for a dialog from its title, so every form gets a fitting header without per-page wiring. */
+const DIALOG_ICONS: [RegExp, LucideIcon][] = [
+  [/reschedule/i, CalendarClock], [/appointment|book/i, CalendarPlus], [/payment/i, Wallet], [/invoice/i, Receipt],
+  [/prescri/i, Pill], [/lab|test|result/i, FlaskConical], [/surg/i, Scissors], [/vital/i, Activity], [/note/i, NotebookPen],
+  [/emergency|triage|\ber\b/i, Siren], [/doctor/i, Stethoscope], [/restock|stock|item|equipment|supply|medicine/i, PackagePlus],
+  [/edit|update|record/i, SquarePen], [/patient|staff|user|register|add/i, UserPlus],
+]
+export const dialogIcon = (title: string): LucideIcon => DIALOG_ICONS.find(([re]) => re.test(title))?.[1] ?? PencilLine
+
 type Setter<T> = <K extends keyof T>(k: K, v: T[K]) => void
 function FormBody<T extends Record<string, unknown>>({ title, description, initial, onSubmit, close, submitLabel, valid, children }: {
   title: string; description?: string; initial: T; onSubmit: (f: T) => void; close: () => void; submitLabel: string
@@ -52,11 +61,18 @@ function FormBody<T extends Record<string, unknown>>({ title, description, initi
 }) {
   const [f, setF] = useState<T>(initial)
   const set: Setter<T> = (k, v) => setF((s) => ({ ...s, [k]: v }))
+  const Icon = dialogIcon(title)
   return (
-    <form className="grid gap-4" onSubmit={(e) => { e.preventDefault(); if (valid && !valid(f)) return; onSubmit(f); close() }}>
-      <DialogHeader><DialogTitle>{title}</DialogTitle>{description ? <DialogDescription>{description}</DialogDescription> : <DialogDescription className="sr-only">{title}</DialogDescription>}</DialogHeader>
-      {children(f, set)}
-      <DialogFooter><Button type="submit" disabled={valid ? !valid(f) : false}>{submitLabel}</Button></DialogFooter>
+    <form className="grid gap-5" onSubmit={(e) => { e.preventDefault(); if (valid && !valid(f)) return; onSubmit(f); close() }}>
+      <div className="flex items-start gap-3.5 pr-8">
+        <span aria-hidden className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-accent text-accent-foreground ring-1 ring-inset ring-primary/10"><Icon className="size-5" /></span>
+        <DialogHeader className="min-w-0 pt-0.5"><DialogTitle>{title}</DialogTitle>{description ? <DialogDescription>{description}</DialogDescription> : <DialogDescription className="sr-only">{title}</DialogDescription>}</DialogHeader>
+      </div>
+      <div className="grid gap-4">{children(f, set)}</div>
+      <DialogFooter className="-mx-6 -mb-6 mt-1 rounded-b-2xl border-t bg-muted/50 px-6 py-4">
+        <Button type="button" variant="outline" onClick={close}>Cancel</Button>
+        <Button type="submit" disabled={valid ? !valid(f) : false}>{submitLabel}</Button>
+      </DialogFooter>
     </form>
   )
 }
@@ -78,28 +94,29 @@ export function FormDialog<T extends Record<string, unknown>>({ title, descripti
 
 export function StatCard({ label, value, sub, icon: Icon, tone }: { label: string; value: ReactNode; sub?: string; icon: React.ComponentType<{ className?: string }>; tone?: "danger" | "warning" }) {
   return (
-    <Card>
-      <CardContent className="flex items-start justify-between gap-3 p-6">
-        <div className="min-w-0">
-          <p className="text-sm text-muted-foreground">{label}</p>
-          <p className={cn("mt-2 text-2xl font-semibold tracking-tight lg:text-3xl", tone === "danger" && "text-destructive")}>{value}</p>
-          {sub && <p className="mt-1 text-xs text-muted-foreground">{sub}</p>}
+    <Card className="relative overflow-hidden">
+      {tone && <span aria-hidden className={cn("absolute inset-y-0 left-0 w-1", tone === "danger" ? "bg-destructive" : "bg-amber-500")} />}
+      <CardContent className="p-5">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm font-medium text-muted-foreground">{label}</p>
+          <Icon className={cn("size-[18px] shrink-0 text-muted-foreground/70", tone === "danger" && "text-destructive", tone === "warning" && "text-amber-600 dark:text-amber-400")} />
         </div>
-        <div className={cn("shrink-0 rounded-lg bg-accent p-2.5 text-accent-foreground", tone === "danger" && "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300", tone === "warning" && "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300")}><Icon className="size-5" /></div>
+        <p className={cn("mt-3 font-display text-[1.75rem] font-semibold leading-none tracking-tight tabular-nums lg:text-[2rem]", tone === "danger" && "text-destructive")}>{value}</p>
+        {sub && <p className="mt-2 text-[13px] text-muted-foreground">{sub}</p>}
       </CardContent>
     </Card>
   )
 }
 
 export const EmptyRow = ({ cols, text = "Nothing here yet." }: { cols: number; text?: string }) => (
-  <TableRow><TableCell colSpan={cols} className="h-24 text-center text-muted-foreground">{text}</TableCell></TableRow>
+  <TableRow className="hover:bg-transparent"><TableCell colSpan={cols} className="h-32 text-center text-muted-foreground"><div className="flex flex-col items-center gap-2"><Inbox className="size-6 text-muted-foreground/50" />{text}</div></TableCell></TableRow>
 )
 
 export function SearchInput({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
   return (
     <div className="relative w-full sm:w-72">
-      <Search className="absolute left-3 top-2.5 size-4 text-muted-foreground" />
-      <Input className="pl-9" placeholder={placeholder ?? "Search…"} value={value} onChange={(e) => onChange(e.target.value)} />
+      <Search className="absolute left-3.5 top-3 size-4 text-muted-foreground" />
+      <Input className="pl-10" placeholder={placeholder ?? "Search…"} value={value} onChange={(e) => onChange(e.target.value)} />
     </div>
   )
 }

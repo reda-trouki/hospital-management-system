@@ -12,11 +12,11 @@ import { AlertTriangle, Clock, Siren, Stethoscope } from "lucide-react"
 import type { EmergencyCase } from "@/lib/types"
 
 export const TRIAGE: Record<number, { label: string; cls: string }> = {
-  1: { label: "1 · Resuscitation", cls: "bg-red-600 text-white" },
-  2: { label: "2 · Emergent", cls: "bg-orange-500 text-white" },
-  3: { label: "3 · Urgent", cls: "bg-yellow-400 text-yellow-950" },
-  4: { label: "4 · Less urgent", cls: "bg-green-500 text-white" },
-  5: { label: "5 · Non-urgent", cls: "bg-sky-500 text-white" },
+  1: { label: "1 · Resuscitation", cls: "bg-rose-700 text-white" },
+  2: { label: "2 · Emergent", cls: "bg-orange-600 text-white" },
+  3: { label: "3 · Urgent", cls: "bg-amber-300 text-amber-950" },
+  4: { label: "4 · Less urgent", cls: "bg-emerald-600 text-white" },
+  5: { label: "5 · Non-urgent", cls: "bg-sky-600 text-white" },
 }
 
 export default function Emergency() {

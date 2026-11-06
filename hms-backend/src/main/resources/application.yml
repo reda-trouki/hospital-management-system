@@ -43,8 +43,8 @@ management:
 app:
   jwt:
     # >= 32 bytes. Override with JWT_SECRET. The "prod" profile refuses to start without it.
-    secret: ${JWT_SECRET:dev-only-secret-change-me-dev-only-secret-change-me}
+    secret: ${JWT_SECRET:kc45f5D4P8xxQObyx3LBuzvfWEZc37XLv4cZZ4litPw=}
     expiration: 8h
   cors:
-    allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000}
+    allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:4173,http://localhost:3000}
   seed-demo-data: ${SEED_DEMO_DATA:true}

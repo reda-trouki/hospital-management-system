@@ -1,5 +1,5 @@
 export type Role = "Admin" | "Doctor" | "Nurse" | "Receptionist" | "Pharmacist" | "Lab Tech" | "Patient"
-export type User = { id: string; name: string; email: string; password: string; role: Role; linkedId?: string }
+export type User = { id: string; name: string; email: string; role: Role; linkedId?: string }
 
 export type Patient = {
   id: string; name: string; age: number; gender: "Male" | "Female" | "Other"
@@ -59,4 +59,14 @@ export type DB = {
   invoices: Invoice[]; vitals: Vital[]; notes: Note[]; items: Item[]; prescriptions: Prescription[]
   labs: LabOrder[]; emergency: EmergencyCase[]; surgeries: Surgery[]; staff: Staff[]
   audit: AuditEntry[]; settings: Settings
+}
+
+// Patient portal view models (GET /api/portal/me)
+export type PortalDoctor = { id: string; name: string; specialty: string }
+export type PortalAppointment = { id: string; date: string; time: string; doctorName: string; reason: string; status: Appointment["status"] }
+export type PortalPrescription = { id: string; date: string; medicine: string; dosage: string; duration: string; instructions: string; status: Prescription["status"] }
+export type PortalLab = { id: string; date: string; test: string; result: string; flag: NonNullable<LabOrder["flag"]> }
+export type Portal = {
+  patient: Patient; appointments: PortalAppointment[]; prescriptions: PortalPrescription[]
+  labs: PortalLab[]; invoices: Invoice[]; balanceDue: number
 }
